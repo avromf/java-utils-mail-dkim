@@ -22,14 +22,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Enumeration;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
-
 import com.sun.mail.smtp.SMTPMessage;
-
-import net.markenwerk.utils.data.fetcher.BufferedDataFetcher;
 
 /**
  * Extension of {@link SMTPMessage} for the inclusion of a DKIM signature.
@@ -100,7 +96,7 @@ public class DkimMessage extends SMTPMessage {
 			encodingOutputStream.close();
 		} else if (null == content) {
 			// write the provided contentStream into the bodyBuffer
-			new BufferedDataFetcher().copy(getContentStream(), bodyBuffer, true, false);
+			getContentStream().transferTo(bodyBuffer);
 			bodyBuffer.flush();
 			bodyBuffer.close();
 		} else {

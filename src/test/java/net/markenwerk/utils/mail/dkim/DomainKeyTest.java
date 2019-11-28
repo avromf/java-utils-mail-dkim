@@ -3,22 +3,17 @@ package net.markenwerk.utils.mail.dkim;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
 import org.junit.Test;
-
-import net.iharder.Base64;
 
 public class DomainKeyTest {
 
@@ -37,7 +32,7 @@ public class DomainKeyTest {
 		DomainKey domainKey = new DomainKey(tags);
 
 		assertNotNull(domainKey);
-		assertArrayEquals(Base64.decode(EXAMPLE_DOMAIN_KEY), domainKey.getPublicKey().getEncoded());
+		assertArrayEquals(java.util.Base64.getDecoder().decode(EXAMPLE_DOMAIN_KEY), domainKey.getPublicKey().getEncoded());
 
 	}
 

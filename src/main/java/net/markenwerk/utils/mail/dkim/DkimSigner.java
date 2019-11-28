@@ -33,6 +33,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -45,15 +46,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.mail.Header;
 import javax.mail.MessagingException;
-
 import com.sun.mail.util.CRLFOutputStream;
 import com.sun.mail.util.QPEncoderStream;
-import net.iharder.Base64;
-
-import net.markenwerk.utils.data.fetcher.BufferedDataFetcher;
 
 /**
  * Main class providing a signature according to DKIM RFC 4871.
@@ -189,7 +185,7 @@ public class DkimSigner {
 	 */
 	public DkimSigner(String signingDomain, String selector, InputStream derStream) throws IOException,
 			NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] privKeyBytes = new BufferedDataFetcher().fetch(derStream, true);
+		byte[] privKeyBytes = derStream.readAllBytes();
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(privKeyBytes);
 		RSAPrivateKey privKey = (RSAPrivateKey) keyFactory.generatePrivate(privSpec);
@@ -458,7 +454,7 @@ public class DkimSigner {
 			List<Header> reverseOrderHeaderLines = new LinkedList<Header>();
 			
 			while (headerLines.hasMoreElements()) {
-				Header header = (Header) headerLines.nextElement();
+				Header header = headerLines.nextElement();
 				if (headersToSign.contains(header.getName())) {
 					reverseOrderHeaderLines.add(0, header);
 				}
@@ -629,7 +625,7 @@ public class DkimSigner {
 	}
 
 	private static String base64Encode(byte[] bytes) {
-		String encoded = Base64.encodeBytes(bytes);
+		String encoded = Base64.getEncoder().encodeToString(bytes);
 
 		// remove unnecessary line feeds after 76 characters
 		encoded = encoded.replace("\n", "");

@@ -17,7 +17,6 @@
  */
 package net.markenwerk.utils.mail.dkim;
 
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -26,19 +25,18 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import net.iharder.Base64;
 
 /**
  * A {@code DomainKey} holds the information about a domain key.
@@ -128,12 +126,10 @@ public final class DomainKey {
 	private RSAPublicKey getPublicKey(String privateKeyTagValue) throws DkimException {
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-			X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Base64.decode(privateKeyTagValue));
+			X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(privateKeyTagValue));
 			return (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
 		} catch (NoSuchAlgorithmException nsae) {
 			throw new DkimException("RSA algorithm not found by JVM");
-		} catch (IOException e) {
-			throw new DkimException("The public key " + privateKeyTagValue + " couldn't be read.");
 		} catch (InvalidKeySpecException e) {
 			throw new DkimException("The public key " + privateKeyTagValue + " couldn't be decoded.");
 		}

@@ -5,14 +5,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-
-import net.iharder.Base64;
-import net.markenwerk.commons.nulls.NullOutputStream;
-import net.markenwerk.utils.data.fetcher.BufferedDataFetcher;
 
 class Utils {
 
@@ -42,18 +39,21 @@ class Utils {
 	}
 
 	static byte[] read(File file) throws IOException {
-		return new BufferedDataFetcher().fetch(new FileInputStream(file), true);
+		FileInputStream inputStream = new FileInputStream(file);
+		byte[] bytes = inputStream.readAllBytes();
+		inputStream.close();
+		return bytes;
 	}
 
 	static void write(File file, byte[] bytes) throws IOException {
-		new BufferedDataFetcher().copy(new ByteArrayInputStream(bytes), new FileOutputStream(file));
+		new ByteArrayInputStream(bytes).transferTo(new FileOutputStream(file));
 	}
 
 	static String digest(String string, String algorithm) throws IOException, NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance(algorithm);
-		DigestOutputStream out = new DigestOutputStream(new NullOutputStream(), digest);
-		new BufferedDataFetcher().copy(new ByteArrayInputStream(string.getBytes()), out, true, true);
-		return Base64.encodeBytes(digest.digest());
+		DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), digest);
+		new ByteArrayInputStream(string.getBytes()).transferTo(out);
+		return java.util.Base64.getEncoder().encodeToString(digest.digest());
 	}
 
 	static DkimSigner getSigner(Canonicalization canonicalization, SigningAlgorithm algorithm) throws Exception {
